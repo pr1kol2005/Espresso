@@ -1,16 +1,17 @@
 import sqlite3
 import sys
 
-from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QWidget, QTableWidgetItem, QDialog
+from mainForm import Ui_espresso
+from addEditCoffeeForm import Ui_addEditCoffeeForm
 
 
-class MainCoffee(QWidget):
+class MainCoffee(QWidget, Ui_espresso):
     def __init__(self):
         super().__init__()
-        uic.loadUi('main.ui', self)
-        self.connection = sqlite3.connect("coffee.db")
+        self.setupUi(self)
+        self.connection = sqlite3.connect("C:\\Users\\kagri\\PycharmProjects\\Espresso\\data\\coffee.db")
         self.pushButton.clicked.connect(self.select_data)
         self.addEditBt.clicked.connect(self.addEditData)
         self.textEdit.setPlainText("SELECT * FROM info")
@@ -32,15 +33,15 @@ class MainCoffee(QWidget):
         self.connection.close()
 
     def addEditData(self):
-        prikol = AddEditCoffeeWidget(self)
+        prikol = AddEditCoffeeWidget()
         prikol.exec()
 
 
-class AddEditCoffeeWidget(QDialog):
-    def __init__(self, MasterWidget):
+class AddEditCoffeeWidget(QDialog, Ui_addEditCoffeeForm):
+    def __init__(self):
         super().__init__()
-        uic.loadUi("addEditCoffeeForm.ui", self)
-        self.con = MasterWidget.connection
+        self.setupUi(self)
+        self.con = sqlite3.connect("C:\\Users\\kagri\\PycharmProjects\\Espresso\\data\\coffee.db")
         self.pushButton.clicked.connect(self.update_result)
         self.tableWidget.itemChanged.connect(self.item_changed)
         self.pushButton_2.clicked.connect(self.save_results)
@@ -70,7 +71,6 @@ class AddEditCoffeeWidget(QDialog):
             que += ", ".join([f"{key}='{self.modified.get(key)}'"
                               for key in self.modified.keys()])
             que += "WHERE id = ?"
-            print(que)
             self.con.cursor().execute(que, (self.spinBox.text(),))
             self.con.commit()
             self.modified.clear()
